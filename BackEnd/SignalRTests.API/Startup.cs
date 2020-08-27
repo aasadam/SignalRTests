@@ -52,9 +52,11 @@ namespace SignalRTests.API
             {
                 options.AddPolicy("LoggedUser", policy => policy.Requirements.Add(new LoggedUserRequirement()));
                 options.AddPolicy("LoggedUserWithCity", policy => policy.Requirements.Add(new LoggedUserWithCityRequirement()));
+                options.AddPolicy("LoggedUserWithCityHub", policy => policy.Requirements.Add(new LoggedUserWithCityHubRequirement()));
             });
             services.AddTransient<IAuthorizationHandler, LoggedUserHandler>();
             services.AddTransient<IAuthorizationHandler, LoggedUserWithCityHandler>();
+            services.AddTransient<IAuthorizationHandler, LoggedUserWithCityHubHandler>();
 
             services.AddScoped<LoggedUser>();
 
@@ -75,18 +77,19 @@ namespace SignalRTests.API
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-                x.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var token = context.Request.Query["token"];
-                        if (!string.IsNullOrEmpty(token))
-                            context.Token = token;
+                //Not Necessary
+                //x.Events = new JwtBearerEvents
+                //{
+                //    OnMessageReceived = context =>
+                //    {
+                //        var token = context.Request.Query["token"];
+                //        if (!string.IsNullOrEmpty(token))
+                //            context.Token = token;
 
 
-                        return Task.CompletedTask;
-                    }
-                };
+                //        return Task.CompletedTask;
+                //    }
+                //};
             });
 
             services.AddSwaggerGen(c =>

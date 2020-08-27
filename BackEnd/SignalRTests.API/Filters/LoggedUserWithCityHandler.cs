@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace SignalRTests.API.Filters
 {
+    /// <summary>
+    /// Only work for first Call
+    /// 
+    /// </summary>
     public class LoggedUserWithCityHandler : AuthorizationHandler<LoggedUserWithCityRequirement>
     {
         private readonly LoggedUser _loggedUser;

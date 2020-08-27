@@ -14,6 +14,7 @@ const hubConnection = new signalR.HubConnectionBuilder()
         {
             accessTokenFactory: () => USER_TOKEN
         })
+    .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
@@ -26,6 +27,16 @@ class WeatherNow extends Component {
     };
 
     async componentDidMount() {
+        hubConnection.onclose(e => {
+            //Handle disconnect
+            console.log("onclose");
+        });
+    
+        hubConnection.onreconnecting(e => {
+            //Handle reconnecting
+            console.log("onreconnecting");
+        });
+
         hubConnection.start()
             .then(() => {
                 hubConnection.on("ChangeWeather", weatherServer => {
@@ -42,7 +53,24 @@ class WeatherNow extends Component {
 
     ChangeWeatherServer = e => {
         e.preventDefault();
-        hubConnection.invoke("ChangeWeather", this.state.text,);
+        hubConnection.invoke("ChangeWeather", this.state.text, this.state.city)
+            .catch(err => {
+                console.log(err);
+                this.setState({ weather: "ERROR" });
+                if (err.statusCode == 401)
+                    this.setState({ weather: "Unautorized" });
+            });
+    }
+
+    AbortServer = e => {
+        e.preventDefault();
+        hubConnection.invoke("AbortConnection")
+            .catch(err => {
+                console.log(err);
+                this.setState({ weather: "ERROR" });
+                if (err.statusCode == 401)
+                    this.setState({ weather: "Unautorized" });
+            });
     }
 
     render() {
@@ -63,6 +91,7 @@ class WeatherNow extends Component {
                     onChange={e => this.setState({ city: e.target.value })}
                 />
                 <Button onClick={(e) => this.ChangeWeatherServer(e)}>Change Weather</Button>
+                <Button onClick={(e) => this.AbortServer(e)}>Abort</Button>
                 <br />
                 <br />
                 <br />

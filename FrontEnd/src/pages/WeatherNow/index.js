@@ -14,8 +14,11 @@ const hubConnection = new signalR.HubConnectionBuilder()
         {
             accessTokenFactory: () => USER_TOKEN
         })
+    .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
+
+    
 
 
 class WeatherNow extends Component {
@@ -34,9 +37,11 @@ class WeatherNow extends Component {
             .catch(err => {
                 console.log(err);
                 this.setState({ weather: "ERROR" });
-                if(err.statusCode == 401)
+                if (err.statusCode == 401)
                     this.setState({ weather: "Unautorized" });
             });
+
+            
     }
 
     ChangeWeatherServer = e => {

@@ -7,25 +7,28 @@ using System.Threading.Tasks;
 
 namespace SignalRTests.API.Hubs
 {
-    [Authorize(Policy = "LoggedUserWithCity")]
+    //Authorize is necessary on hub to have jwt bearer claims in context.user
+    [Authorize]
     public class WeatherNowByCityHub : Hub
     {
-        private readonly LoggedUser _loggedUser;
-
-        public WeatherNowByCityHub(LoggedUser loggedUser)
-        {
-            _loggedUser = loggedUser;
-        }
-
+        [Authorize(Policy = "LoggedUserWithCityHub")]
         public Task ChangeWeather(string weather, string city)
         {
             return Clients.Group(city).SendAsync("ChangeWeather", weather);
         }
 
+        public Task AbortConnection()
+        {
+            //Client can reconnect, must stop at authorize.
+            Context.Abort();
+
+            return Task.CompletedTask;
+        }
+
         public override Task OnConnectedAsync()
         {
-            Groups.AddToGroupAsync(Context.ConnectionId, _loggedUser.City);
-
+            if (!string.IsNullOrWhiteSpace(Context?.User?.Claims?.FirstOrDefault(c => c.Type == "city")?.Value))
+                Groups.AddToGroupAsync(Context.ConnectionId, Context.User.Claims.FirstOrDefault(c => c.Type == "city").Value);
 
             return base.OnConnectedAsync();
         }
