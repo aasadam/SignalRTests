@@ -77,19 +77,19 @@ namespace SignalRTests.API
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-                //Not Necessary
-                //x.Events = new JwtBearerEvents
-                //{
-                //    OnMessageReceived = context =>
-                //    {
-                //        var token = context.Request.Query["token"];
-                //        if (!string.IsNullOrEmpty(token))
-                //            context.Token = token;
+                //Necessary
+                x.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(token))
+                            context.Token = token;
 
 
-                //        return Task.CompletedTask;
-                //    }
-                //};
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.AddSwaggerGen(c =>
@@ -168,8 +168,8 @@ namespace SignalRTests.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<WeatherNowHub>("/api/WeatherNow");
-                endpoints.MapHub<WeatherNowByCityHub>("/api/WeatherNowByCity");
+                endpoints.MapHub<WeatherNowHub>("/api/hubs/WeatherNow");
+                endpoints.MapHub<WeatherNowByCityHub>("/api/hubs/WeatherNowByCity");
             });
         }
     }

@@ -10,7 +10,7 @@ import functions from '../../Util/functions'
 
 const USER_TOKEN = functions.GetCookie('TOKEN');
 const hubConnection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:5001/api/WeatherNow",
+    .withUrl("https://localhost:5001/api/hubs/WeatherNow",
         {
             accessTokenFactory: () => USER_TOKEN
         })
